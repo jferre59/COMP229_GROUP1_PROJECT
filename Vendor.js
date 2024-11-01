@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 
-// Schema for vendors
+// Schema for vendors 
 const VendorSchema = new mongoose.Schema({
     vendorId: {
         type: String,

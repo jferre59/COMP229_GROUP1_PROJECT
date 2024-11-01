@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 
-// Schema for user sessions
+// Schema for user sessions 
 const UserSessionSchema = new mongoose.Schema({
     userId: {
         type: String,
@@ -28,3 +28,4 @@ const UserSessionSchema = new mongoose.Schema({
 });
 
 module.exports = mongoose.model('UserSession', UserSessionSchema);
+ 

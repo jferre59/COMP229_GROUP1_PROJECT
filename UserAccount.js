@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 const crypto = require('crypto');
 const { type } = require('os');
-//Schema for user accounts
+//Schema for user accounts 
 const UserAccountSchema = new mongoose.Schema({
     userId:{
         type:String,

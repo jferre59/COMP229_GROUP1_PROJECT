@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 
-// Schema for flowers
+// Schema for flowers 
 const FlowerSchema = new mongoose.Schema({
     flowerId: {
         type: String,

@@ -1,5 +1,5 @@
 const mongoose = require('mongoose');
-//Schema for catalogs
+//Schema for catalogs 
 const OccasionSchema = new mongoose.Schema({
     occasionId:{
         type:String,
