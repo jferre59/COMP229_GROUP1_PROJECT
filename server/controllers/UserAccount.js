@@ -21,7 +21,7 @@ exports.getAllUserAccounts = async (req, res) => {
         res.status(400).json({ error: error.message });
     }
 };
-
+/*
 // Get user account by username
 exports.getUserAccountByUserName = async (req, res) => {
     try {
@@ -37,11 +37,36 @@ exports.getUserAccountByUserName = async (req, res) => {
         res.status(400).json({ error: error.message });
     }
 };
+*/
+
+exports.getUserAccountByUserAccName = async (req, res) => {
+    try {
+        console.log('Received request body:', JSON.stringify(req.body, null, 2)); // Log the entire request body
+        const { userAccName } = req.body; // Extract the userAccName from the request body
+        console.log('Received userAccName:', userAccName); // Log the received userAccName
+
+        const userAccount = await UserAccount.findOne({ userAccName }); // Find the user account by userAccName
+        console.log('Queried user account:', userAccount); // Log the queried user account
+
+        if (!userAccount) {
+            console.log('User account not found'); // Log if user account is not found
+            return res.status(404).json({ error: 'User account not found' });
+        }
+
+        res.status(200).json(userAccount);
+    } catch (error) {
+        console.error('Error fetching user account:', error.message); // Log the error message
+        res.status(400).json({ error: error.message });
+    }
+};
+
+
+/*
 // Get user account by userId
 exports.getUserAccountByUserId = async (req, res) => {
     try {
-        const { userId } = req.body; // Extract the username from the request body
-        const userAccount = await UserAccount.findOne({ userId }); // Find the user account by username
+        const { userId } = req.body; // Extract the userId from the request body
+        const userAccount = await UserAccount.findOne({ userId }); // Find the user account by userId
 
         if (!userAccount) {
             return res.status(404).json({ error: 'User account not found' });
@@ -52,6 +77,29 @@ exports.getUserAccountByUserId = async (req, res) => {
         res.status(400).json({ error: error.message });
     }
 };
+*/
+exports.getUserAccountByUserAccId = async (req, res) => {
+    try {
+        console.log('Received request USERACCID body:', JSON.stringify(req.body, null, 2)); // Log the entire request body
+        const { userAccId } = req.body; // Extract the userAccId from the request body
+        console.log('Received userAccId:', userAccId); // Log the received userAccId
+
+        const userAccount = await UserAccount.findOne({ userAccId }); // Find the user account by userAccId
+        console.log('Queried user account:', userAccount); // Log the queried user account
+
+        if (!userAccount) {
+            console.log('User account not found'); // Log if user account is not found
+            return res.status(404).json({ error: 'User account not found' });
+        }
+
+        res.status(200).json(userAccount);
+    } catch (error) {
+        console.error('Error fetching user account:', error.message); // Log the error message
+        res.status(400).json({ error: error.message });
+    }
+};
+
+
 
 // Get user account by email
 exports.getUserAccountByEmail = async (req, res) => {
@@ -68,6 +116,7 @@ exports.getUserAccountByEmail = async (req, res) => {
         res.status(400).json({ error: error.message });
     }
 };
+
 
 // Update a user account
 exports.updateUserAccount = async (req, res) => {

@@ -14,6 +14,6 @@ router.get('/flowers/:flowerId', flowerController.getFlowerById);
 router.put('/flowers/:flowerId', flowerController.updateFlower);
 
 // Delete a flower
-router.delete('/flowers', flowerController.deleteFlower);
+router.delete('/flowers/:flowerId', flowerController.deleteFlower);
 
 module.exports = router;

@@ -1,24 +1,24 @@
+// server
 const app = require('./express.js');
 // config
-const config = require('./config/config.js');
+const config = require('../config/config.js');
 // mongoDB connection
 const mongoose = require('mongoose');
 
-//require('dotenv').config();
+require('dotenv').config();
 const mongoUri = process.env.MONGO_URI;
 mongoose.Promise = global.Promise;
-mongoose.connect(config.mongoUri,{useNewUrlParser:true,
-  useUnifiedTopology:true
+mongoose.connect(config.mongoUri, {
+  useNewUrlParser: true,
+  useUnifiedTopology: true
 })
-//then catch to check if database connected correctly
-.then(()=>console.log("Welcome to the database!"))
-.catch(err => console.error(`Cannot connect to databse`));
+  .then(() => console.log("Welcome to the database Serverjs!"))
+  .catch(err => console.error(`Cannot connect to database`));
 
-//to show what port the server is on
-app.listen(config.port,()=>{
-  console.info(`Server started on the port ${config.port}`)
+// to show what port the server is on
+app.listen(config.port, () => {
+  console.info(`Server started on the port ${config.port}`);
 });
-
 
 // Routes
 const authRoutes = require('./routes/Auth');

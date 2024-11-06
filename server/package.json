@@ -10,6 +10,20 @@
     "lint": "eslint src --ext js,jsx --report-unused-disable-directives --max-warnings 0",
     "preview": "vite preview"
   },
+  "packages": {
+    "node_modules/dotenv": {
+      "version": "16.4.5",
+      "resolved": "https://registry.npmjs.org/dotenv/-/dotenv-16.4.5.tgz",
+      "integrity": "sha512-ZmdL2rui+eB2YwhsWzjInR8LldtZHGDoQ1ugH85ppHKwpUHL7j7rN0Ti9NCnGiQbhaZ11FpR+7ao1dNsmduNUg==",
+      "license": "BSD-2-Clause",
+      "engines": {
+        "node": ">=12"
+      },
+      "funding": {
+        "url": "https://dotenvx.com"
+      }
+    }
+  },
   "dependencies": {
     "@babel/core": "^7.25.8",
     "@babel/preset-env": "^7.25.8",
@@ -25,6 +39,7 @@
     "global": "4.4.0",
     "helmet": "^8.0.0",
     "jsonwebtoken": "^9.0.2",
+     "dotenv": "^16.4.5",
     "mongoose": "^8.7.1"
   },
   "keywords": [

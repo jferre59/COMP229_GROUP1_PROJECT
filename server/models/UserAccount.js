@@ -3,18 +3,18 @@ const crypto = require('crypto');
 const { type } = require('os');
 //Schema for user accounts
 const UserAccountSchema = new mongoose.Schema({
-    userId:{
+    userAccId:{
         type:String,
         trim:true,
         required:'Name is required'
     },
-    username:{
+    userAccName:{
         type:String,
         trim:true,
         required:'Username is required'
     },
    
-    hashed_passwords:{
+    hashedPassword:{
         type:String,
         required:'Password required'
     },
@@ -50,7 +50,7 @@ UserAccountSchema.virtual('password')
 .set(function(password){
     this._password = password;
     this.salt = this.makeSalt();
-    this.hashed_passwords = this.encryptPassword(password)
+    this.hashedPassword = this.encryptPassword(password)
 })
 .get(function(){
     return this._password;
@@ -58,7 +58,7 @@ UserAccountSchema.virtual('password')
 UserAccountSchema.methods = {
     authentication: function(plainText)
     {
-        return encryptPassword(plainText) === this.hashed_passwords;
+        return encryptPassword(plainText) === this.hashedPassword;
     },
     encryptPassword : function(password)
     {
@@ -79,4 +79,4 @@ UserAccountSchema.methods = {
         return Math.round(new Date().valueOf() * Math.random()) + ''
     }
 } 
-module.exports = mongoose.model('userAccounts',UserAccountSchema);
+module.exports = mongoose.model('useraccounts',UserAccountSchema);

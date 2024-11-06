@@ -35,12 +35,12 @@ const getCatalogEntries = async (req, res) => {
 const getCatalogEntryById = async (req, res) => {
     try {
         const { itemId } = req.body; // Extract the itemId from the request body
-        const catalogEntry = await Catalog.findOne({ itemId }); // Find the catalog entry by itemId
+        const catalogEntry = await Catalog.findOne({itemId}); // Find the catalog entry by itemId
 
         if (!catalogEntry) {
             return res.status(404).json({
                 error: 'Catalog entry not found',
-                message: 'The catalog entry you are looking for does not exist.'
+                message: 'The catalog entry you are looking for does not exist.', itemId
             });
         }
         return res.status(200).json({ message: 'Catalog entry retrieved successfully', catalogEntry });
@@ -53,10 +53,14 @@ const getCatalogEntryById = async (req, res) => {
     }
 };
 
+
 // Update a catalog entry by ID
 const updateCatalogEntry = async (req, res) => {
     try {
-        const catalogEntry = await Catalog.findByIdAndUpdate(req.body.itemId, req.body, { new: true, runValidators: true });
+        const filter = { itemId: req.body.itemId }; // Create the filter object
+        const update = req.body; // The update object
+
+        const catalogEntry = await Catalog.findOneAndUpdate(filter, update, { new: true, runValidators: true });
         if (!catalogEntry) {
             return res.status(404).json({
                 error: 'Catalog entry not found',
@@ -73,10 +77,13 @@ const updateCatalogEntry = async (req, res) => {
     }
 };
 
+
 // Delete a catalog entry by ID
 const deleteCatalogEntry = async (req, res) => {
     try {
-        const catalogEntry = await Catalog.findByIdAndDelete(req.body.itemId);
+        const filter = { itemId: req.body.itemId }; // Create the filter object 
+
+        const catalogEntry = await Catalog.findOneAndDelete(filter); // Use findOneAndDelete fro string id
         if (!catalogEntry) {
             return res.status(404).json({
                 error: 'Catalog entry not found',

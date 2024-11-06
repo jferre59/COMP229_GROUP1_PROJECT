@@ -4,7 +4,7 @@ const CatalogSchema = new mongoose.Schema({
   itemId: {
     type: String,
     trim: true,
-    unique: true,
+    //unique: true,
     required: 'Item ID is required'
   },
   flowerId: {

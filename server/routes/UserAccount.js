@@ -7,8 +7,10 @@ const userAccountController = require('../controllers/UserAccount');
 router.post('/userAccounts', userAccountController.createUserAccount);
 router.get('/userAccounts', userAccountController.getAllUserAccounts);
 router.get('/userAccounts/:email', userAccountController.getUserAccountByEmail);
-router.get('/userAccounts/:userId', userAccountController.getUserAccountByUserId);
-router.get('/userAccounts/:userName', userAccountController.getUserAccountByUserName);
+router.get('/userAccounts/getByUserAccId',userAccountController.getUserAccountByUserAccId);
+router.post('/userAccounts/getByUserAccId',userAccountController.getUserAccountByUserAccId);
+router.get('/userAccounts/getByUserAccName',userAccountController.getUserAccountByUserAccName)
+router.post('/userAccounts/getByUserAccName',userAccountController.getUserAccountByUserAccName);
 router.put('/userAccounts/:userId', userAccountController.updateUserAccount);
 router.delete('/userAccounts/:userId', userAccountController.deleteUserAccount);
 
