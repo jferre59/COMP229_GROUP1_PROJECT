@@ -1,8 +1,13 @@
 const app = require('./express.js');
 // config
 const config = require('./config/config.js');
+//assets router
+const assetsRouter = require('./assets-router')
 // mongoDB connection
 const mongoose = require('mongoose');
+
+//require('dotenv').config();
+const mongoUri = process.env.MONGO_URI;
 mongoose.Promise = global.Promise;
 mongoose.connect(config.mongoUri,{useNewUrlParser:true,
   useUnifiedTopology:true
@@ -16,6 +21,7 @@ app.listen(config.port,()=>{
   console.info(`Server started on the port ${config.port}`)
 });
 
+
 // Routes
 const authRoutes = require('./routes/Auth');
 const catalogRoutes = require('./routes/Catalog');
@@ -27,6 +33,7 @@ const userSessionRoutes = require('./routes/UserSession');
 const vendorRoutes = require('./routes/Vendor');
 
 // Use routes
+app.use('/assets', assetsRouter);
 app.use('/api', authRoutes);
 app.use('/api', catalogRoutes);
 app.use('/api', categoryRoutes);
