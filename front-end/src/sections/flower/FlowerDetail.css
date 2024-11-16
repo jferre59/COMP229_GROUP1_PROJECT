@@ -1,0 +1,145 @@
+.flower-detail-page {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+.flower-detail-header {
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+}
+
+.flower-nav {
+    margin-left: 10px;
+}
+
+.flower-nav .nav-link {
+    margin-right: 10px;
+    color: #007bff;
+    text-decoration: none;
+}
+
+.flower-nav .nav-link:hover {
+    text-decoration: underline;
+}
+
+.breadcrumb {
+    margin-top: 10px;
+    margin-bottom: 15px;
+}
+
+.flower-detail-container {
+    display: flex;
+    justify-content: flex-start;
+    margin-top: 20px;
+    align-items: flex-start;
+}
+
+.image-section {
+    flex: 1;
+    position: relative;
+}
+
+.main-image-placeholder {
+    width: 350px;
+    height: 350px;
+    background-color: #ccc;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 10px;
+    border: 1px solid #ccc;
+}
+
+.thumbnail-container {
+    display: flex;
+    gap: 10px;
+}
+
+.thumbnail-box {
+    width: 60px;
+    height: 60px;
+    background-color: #ccc;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid #ccc;
+}
+
+.info-section {
+    flex: 1;
+    padding: 20px;
+    border: 1px solid #ccc;
+    box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+    max-width: 300px;
+    margin-left: -310px;
+    transform: translateX(-400px);
+}
+
+.info-section h2, .info-section .flower-price {
+    display: inline-block;
+    margin: 0;
+    vertical-align: middle;
+}
+
+.info-section .flower-price {
+    margin-left: 10px;
+    font-size: 1.2em;
+    font-weight: bold;
+}
+
+.quantity-section, .add-to-catalogue-button, .description {
+    margin-top: 15px;
+}
+
+.add-to-catalogue-button {
+    padding: 10px 15px;
+    width: auto;
+    display: block;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    cursor: pointer;
+    border-radius: 5px;
+}
+
+.quantity-section select {
+    margin-left: 5px;
+}
+
+.description {
+    margin-top: 15px;
+}
+
+.related-products-section {
+    margin-top: 30px;
+    display: flex;
+    flex-direction: column;
+}
+
+.related-products-container {
+    display: flex;
+    gap: 20px;
+    margin-top: 10px;
+}
+
+.related-product-box {
+    width: 120px;
+    height: 120px;
+    background-color: #ccc;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid #ccc;
+}
+
+.flower-footer {
+    margin-top: 10px;
+}
+
+.footer-nav {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+}
