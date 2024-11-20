@@ -1,7 +1,7 @@
 const express = require('express')
 const UserAccount = require('../models/UserAccount.js');
 const jwt = require('jsonwebtoken');
-const config = require('../config/config.js');
+const config = require('../../config/config.js');
 const expressJwt = require('express-jwt');
 
 // Sign-in function
