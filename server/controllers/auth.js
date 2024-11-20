@@ -1,11 +1,16 @@
+require('dotenv').config(); 
 const express = require('express');
 const UserAccount = require('../models/UserAccount.js');
 const jwt = require('jsonwebtoken');
 const { expressjwt: expressJwt } = require('express-jwt');
 const path = require('path');
 
+const jwtSecret = process.env.JWT_SECRET || 'fallback_secret';
+const port = process.env.PORT || 3000;
+const mongoUri = process.env.MONGODB_URI || 'mongodb://localhost/default_db';
+
 // Modify config loading
-const config = (() => {
+/*const config = (() => {
     try {
         console.log('Current directory:', __dirname);
         console.log('Config file path:', path.resolve(__dirname, '../config/config.js'));
@@ -19,11 +24,12 @@ const config = (() => {
         // Fallback to environment variables
         return {
             jwtSecret: process.env.JWT_SECRET || 'fallback_secret',
-            port: process.env.PORT || 3000,
+            port: process.env.PORT || 8080,
             mongoUri: process.env.MONGODB_URI || 'mongodb://localhost/default_db'
         };
     }
 })();
+*/
 
 // Sign-in function
 async function signin(req, res) {
@@ -62,7 +68,8 @@ const signout = (req, res) => {
 
 // Require sign-in middleware
 const requireSignin=expressJwt({
-    secret: config.jwtSecret,
+    //secret: config.jwtSecret,
+    secret: jwtSecret,
     algorithms: ["HS256"],
     userProperty: 'auth'
 });
