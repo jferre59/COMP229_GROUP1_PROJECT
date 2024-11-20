@@ -1,13 +1,29 @@
 const express = require('express');
 const UserAccount = require('../models/UserAccount.js');
 const jwt = require('jsonwebtoken');
-const config = require('../config/config.js');
-//const expressJwt = require('express-jwt');
-// CommonJS import
 const { expressjwt: expressJwt } = require('express-jwt');
+const path = require('path');
 
-// ES Module import
-//import { expressjwt as expressJwt } from 'express-jwt';
+// Modify config loading
+const config = (() => {
+    try {
+        console.log('Current directory:', __dirname);
+        console.log('Config file path:', path.resolve(__dirname, '../config/config.js'));
+
+        const loadedConfig = require('../config/config.js');
+        console.log('Config loaded successfully:', loadedConfig);
+        return loadedConfig;
+    } catch (error) {
+        console.error('Error loading config:', error);
+        
+        // Fallback to environment variables
+        return {
+            jwtSecret: process.env.JWT_SECRET || 'fallback_secret',
+            port: process.env.PORT || 3000,
+            mongoUri: process.env.MONGODB_URI || 'mongodb://localhost/default_db'
+        };
+    }
+})();
 
 // Sign-in function
 async function signin(req, res) {
