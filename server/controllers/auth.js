@@ -2,7 +2,12 @@ const express = require('express')
 const UserAccount = require('../models/UserAccount.js');
 const jwt = require('jsonwebtoken');
 const config = require('../../config/config.js');
-const expressJwt = require('express-jwt');
+//const expressJwt = require('express-jwt');
+// CommonJS import
+const { expressjwt: expressJwt } = require('express-jwt');
+
+// ES Module import
+//import { expressjwt as expressJwt } from 'express-jwt';
 
 // Sign-in function
 async function signin(req, res) {
@@ -12,7 +17,7 @@ async function signin(req, res) {
             return res.status('401').json({ error: 'User not exist' });
         }
         if (!userAccount.authenticate(req.body.password)) {
-            return res.status('401').json({ error: 'Password is Wrong' });
+            return res.status('401').jcdson({ error: 'Password is Wrong' });
         }
         const token = jwt.sign({ _id: userAccount._id }, config.jwtSecret);
         res.cookie('t', token, { expire: new Date() + 9999 });
@@ -40,13 +45,11 @@ const signout = (req, res) => {
 };
 
 // Require sign-in middleware
-
-const requireSignin = expressJwt({
+const requireSignin=expressJwt({
     secret: config.jwtSecret,
     algorithms: ["HS256"],
     userProperty: 'auth'
 });
-
 // Authorization check
 const hasAuthorization = (req, res, next) => {
     const authorized = req.profile && req.auth && req.profile._id == req.auth._id;

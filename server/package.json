@@ -25,12 +25,12 @@
     }
   },
   "dependencies": {
-    "@babel/core": "^7.25.8",
-    "@babel/preset-env": "^7.25.8",
+    "@babel/core": "^7.26.0",
+    "@babel/preset-env": "^7.26.0",
     "babel-loader": "^9.2.1",
     "body-parser": "^1.20.3",
-    "compression": "^1.7.4",
-    "concurrently": "^9.0.1",
+    "compression": "^1.7.5",
+    "concurrently": "^9.1.0",
     "cookie-parser": "^1.4.7",
     "cors": "^2.8.5",
     "crypto": "^1.0.1",
@@ -40,12 +40,13 @@
     "global": "4.4.0",
     "helmet": "^8.0.0",
     "jsonwebtoken": "^9.0.2",
-    "mongoose": "^8.7.1"
+    "mongoose": "^8.8.2"
   },
   "keywords": [
     "node",
     "express"
   ],
   "author": "Mavericks",
-  "license": "ISC"
+  "license": "ISC",
+  "description": ""
 }
