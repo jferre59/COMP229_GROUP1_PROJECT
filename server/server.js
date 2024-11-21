@@ -2,14 +2,14 @@
 require('dotenv').config();
 const app = require('./express.js');
 // config
-//const path = require('path');
-//const config = require(path.resolve(__dirname, '../config/config.js'));
+const path = require('path');
+const config = require(path.resolve(__dirname, '../config/config.js'));
 //const config = require('../config/config.js');
 // mongoDB connection
 const mongoose = require('mongoose');
 
 
-const mongoUri = process.env.MONGODB_URI;
+const mongoUri = process.env.MONGO_URI;
 mongoose.Promise = global.Promise;
 /*mongoose.connect(config.mongoUri, {
   useNewUrlParser: true,
@@ -24,7 +24,7 @@ app.listen(config.port, () => {
 });
 */
 
-mongoose.connect(mongoUri)
+mongoose.connect(config.mongoUri)
   .then(() => console.log("Welcome to the database Serverjs!"))
   .catch(err => console.error(`Cannot connect to database`, err));
 
