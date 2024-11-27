@@ -98,7 +98,10 @@ const VendorSchema = new mongoose.Schema({
     notes: {
         type: String,
         trim: true
+    },
+    userAccount: { 
+        type: mongoose.Schema.Types.ObjectId, 
+        ref: 'UserAccount' 
     }
 });
-
-module.exports = mongoose.model('vendors', VendorSchema);
+module.exports = mongoose.model('Vendor', VendorSchema);

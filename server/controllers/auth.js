@@ -1,57 +1,47 @@
-const express = require('express');
+const express = require('express')
 const UserAccount = require('../models/UserAccount.js');
 const jwt = require('jsonwebtoken');
-const { expressjwt: expressJwt } = require('express-jwt');
-const path = require('path');
-
-// Modify config loading
-const config = (() => {
-    try {
-        console.log('Current directory:', __dirname);
-        console.log('Config file path:', path.resolve(__dirname, '../config/config.js'));
-
-        const loadedConfig = require('../config/config.js');
-        console.log('Config loaded successfully:', loadedConfig);
-        return loadedConfig;
-    } catch (error) {
-        console.error('Error loading config:', error);
-        
-        // Fallback to environment variables
-        return {
-            jwtSecret: process.env.JWT_SECRET || 'fallback_secret',
-            port: process.env.PORT || 3000,
-            mongoUri: process.env.MONGODB_URI || 'mongodb://localhost/default_db'
-        };
-    }
-})();
+const config = require('../../config/config.js');
+const expressJwt = require('express-jwt');
+require('dotenv').config();
 
 // Sign-in function
 async function signin(req, res) {
     try {
+        console.log('Sign-in request received:', req.body);
         let userAccount = await UserAccount.findOne({ "email": req.body.email });
         if (!userAccount) {
-            return res.status('401').json({ error: 'User not exist' });
+            console.log('User not found');
+            return res.status(401).json({ error: 'User does not exist' });
         }
-        if (!userAccount.authenticate(req.body.password)) {
-            return res.status('401').jcdson({ error: 'Password is Wrong' });
+        if (!userAccount.validatePassword(req.body.password)) {
+            console.log('Password is incorrect');
+            return res.status(401).json({ error: 'Password is incorrect' });
         }
+
         const token = jwt.sign({ _id: userAccount._id }, config.jwtSecret);
         res.cookie('t', token, { expire: new Date() + 9999 });
-        return res.json({
+
+        const response = {
             token,
             userAccount: {
                 _id: userAccount._id,
-                username: userAccount.username,
+                userAccId: userAccount.userAccId,
+                userAccName: userAccount.userAccName,
                 email: userAccount.email,
                 role: userAccount.role,
                 type: userAccount.type
             }
-        });
-    } catch (err) {
-        return res.status('401').json({ error: 'Unable to Sign in' });
-    }
-}
+        };
+        // Log the response object
+        console.log('Response:', response);
+        return res.json(response);
+                } catch (err) {
+                    console.error('Sign-in error:', err);
+                    return res.status(401).json({ error: 'Unable to sign in' });
+                }
 
+};
 // Sign-out function
 const signout = (req, res) => {
     res.clearCookie("t");
@@ -59,13 +49,13 @@ const signout = (req, res) => {
         message: "Successfully signed out"
     });
 };
-
 // Require sign-in middleware
-const requireSignin=expressJwt({
+const requireSignin = expressJwt({
     secret: config.jwtSecret,
     algorithms: ["HS256"],
     userProperty: 'auth'
 });
+
 // Authorization check
 const hasAuthorization = (req, res, next) => {
     const authorized = req.profile && req.auth && req.profile._id == req.auth._id;

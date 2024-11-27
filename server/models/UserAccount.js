@@ -56,9 +56,9 @@ UserAccountSchema.virtual('password')
     return this._password;
 })
 UserAccountSchema.methods = {
-    authentication: function(plainText)
+    validatePassword: function(plainText)
     {
-        return encryptPassword(plainText) === this.hashedPassword;
+        return this.encryptPassword(plainText) === this.hashedPassword;
     },
     encryptPassword : function(password)
     {
@@ -78,5 +78,6 @@ UserAccountSchema.methods = {
     {
         return Math.round(new Date().valueOf() * Math.random()) + ''
     }
+    
 } 
 module.exports = mongoose.model('useraccounts',UserAccountSchema);
