@@ -1,47 +1,61 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import './ProfileManagement.css';
 import { Container, Row, Col, Form, Button, Card, Nav } from 'react-bootstrap';
 import Navbar from '../../components/navbar/Navbar_vendor';
 import Footer from '../../components/footer/footer';
-import axios from 'axios';
+import { fetchUserAccountId, fetchVendorData, submitVendorProfile } from './api-ProfileManagement';
 
 const provinces = [
     "Alberta", "British Columbia", "Manitoba", "New Brunswick", "Newfoundland and Labrador", "Nova Scotia",
-    "Ontario", "Prince Edward Island", "Quebec", "Saskatchewan", "Northwest Territories", "Nunavut", "Yukon"];
+    "Ontario", "Prince Edward Island", "Quebec", "Saskatchewan", "Northwest Territories", "Nunavut", "Yukon"
+];
 
 const daysOfWeek = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 
-
 function ProfileManagement() {
+    const navigate = useNavigate();
     const [formData, setFormData] = useState({
-        vendorName: '',
-        shopLicenseNo: '',
-        shopLogo: '',
-        shopDescription: '',
-        streetAddress1: '',
-        streetAddress2: '',
-        city: '',
-        province: '',
-        postalCode: '',
-        contactPerson: '',
-        email: '',
-        phoneNumber: '',
-        days: [],
-        openingTime: '',
-        closingTime: '',
-        specialHours: '',
-        notes: ''
+        vendorId: '', vendorName: '', shopLicenseNo: '', shopLogo: '', shopDescription: '', streetAddress1: '',
+        streetAddress2: '', city: '', province: '', postalCode: '', contactPerson: '', email: '', phoneNumber: '',
+        days: [], openingTime: '', closingTime: '', specialHours: '', notes: ''
     });
 
     const [errors, setErrors] = useState({});
     const [loading, setLoading] = useState(true);
+    const [isVendorIdLoading, setIsVendorIdLoading] = useState(true);
 
-    // Fetch initial data when component mounts
+   useEffect(() => {
+    const initializeVendorId = async () => {
+        try {
+            const userAccId = await fetchUserAccountId();
+            console.log("Fetched UserAccId:", userAccId);
+
+            if (userAccId) {
+                setFormData(prevData => ({
+                    ...prevData,
+                    vendorId: userAccId,
+                }));
+            }
+        } catch (error) {
+            console.error('Error initializing vendor ID:', error);
+        } finally {
+            setIsVendorIdLoading(false);
+        }
+    };
+
+    initializeVendorId();
+}, []);
+
     useEffect(() => {
         const fetchInitialData = async () => {
             try {
-                const response = await axios.get('/api/vendors/1'); // Replace with actual vendor ID or endpoint
-                setFormData(response.data);
+                const data = await fetchVendorData();
+                setFormData((prevData) => ({
+                    ...prevData,
+                    ...data,
+                    days: data?.days || [],
+                }));
             } catch (error) {
                 console.error('Error fetching initial data:', error);
             } finally {
@@ -51,7 +65,6 @@ function ProfileManagement() {
         fetchInitialData();
     }, []);
 
-    // Real-time validation for email
     useEffect(() => {
         const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         if (formData.email && !emailPattern.test(formData.email)) {
@@ -61,7 +74,6 @@ function ProfileManagement() {
         }
     }, [formData.email]);
 
-    // Real-time validation for postal code
     useEffect(() => {
         const postalCodePattern = /^[A-Za-z]\d[A-Za-z] \d[A-Za-z]\d$/;
         if (formData.postalCode && !postalCodePattern.test(formData.postalCode)) {
@@ -71,20 +83,18 @@ function ProfileManagement() {
         }
     }, [formData.postalCode]);
 
-    // Handle input changes
     const handleChange = (e) => {
         const { name, value, type, checked } = e.target;
         if (type === 'checkbox') {
             setFormData((prevData) => ({
                 ...prevData,
-                days: checked ? [...prevData.days, value] : prevData.days.filter((day) => day !== value)
+                days: checked ? [...prevData.days, value] : prevData.days.filter((day) => day !== value),
             }));
         } else {
             setFormData({ ...formData, [name]: value });
         }
     };
 
-    // Final validation for the form
     const validateForm = () => {
         const newErrors = {};
         const requiredFields = [
@@ -103,20 +113,21 @@ function ProfileManagement() {
         return Object.keys(newErrors).length === 0;
     };
 
-    // Submit the form
     const handleSubmit = async (e) => {
         e.preventDefault();
 
         if (!validateForm()) return;
 
         try {
-            const response = await axios.post('/api/vendors', formData);
-            console.log('Data submitted successfully:', response.data);
-            alert('Profile Management submitted successfully');
+            await submitVendorProfile(formData);
+            alert(formData.id ? 'Your profile has been successfully updated!' : 'Your profile has been successfully created!');
         } catch (error) {
-            console.error('Error submitting form data:', error);
-            alert('Failed to submit Profile Management. Please try again later.');
+            alert('Failed to submit your profile. Please try again later.');
         }
+    };
+
+    const handleCancel = () => {
+        navigate('/vendor-main');
     };
 
     if (loading) return <p>Loading...</p>;
@@ -145,6 +156,20 @@ function ProfileManagement() {
                                 <Row>
                                     <Col xs={12} md={6}>
                                         <h4>Profile Information</h4>
+                                        <Form.Group controlId="vendorId">
+                                            <Form.Label>Vendor Id</Form.Label>
+                                            <Form.Control
+                                                type="text"
+                                                name="vendorId"
+                                                value={isVendorIdLoading ? 'Loading...' : formData.vendorId}
+                                                onChange={handleChange}
+                                                isInvalid={!!errors.vendorId}
+                                                readOnly={isVendorIdLoading} // Prevent editing during loading
+                                                placeholder="Enter vendor Id" />
+                                            <Form.Control.Feedback type="invalid">
+                                                {errors.vendorId}
+                                            </Form.Control.Feedback>
+                                        </Form.Group>
                                         <Form.Group controlId="vendorName">
                                             <Form.Label>Vendor Name</Form.Label>
                                             <Form.Control
@@ -164,8 +189,8 @@ function ProfileManagement() {
                                             <Form.Label>License Number</Form.Label>
                                             <Form.Control
                                                 type="text"
-                                                name="shopLicenceNo"
-                                                value={formData.shopLicenceNo}
+                                                name="shopLicenseNo"
+                                                value={formData.shopLicenseNo}
                                                 onChange={handleChange}
                                                 isInvalid={!!errors.shopLicenseNo}
                                                 placeholder="Enter license number" />
@@ -348,7 +373,7 @@ function ProfileManagement() {
                                                         label={day}
                                                         value={day}
                                                         name="days"
-                                                        checked={formData.days.includes(day)}
+                                                        checked={Array.isArray(formData.days) && formData.days.includes(day)}
                                                         onChange={handleChange}
                                                         isInvalid={!!errors.days}
                                                         inline />
@@ -403,7 +428,8 @@ function ProfileManagement() {
 
                                 {/* Navigation Buttons */}
                                 <div className="d-flex flex-column flex-md-row justify-content-end mt-4">
-                                    <Button variant="secondary" className="me-md-2 mb-2 mb-md-0 w-100 w-md-auto">Cancel</Button>
+                                    <Button variant="secondary" className="me-md-2 mb-2 mb-md-0 w-100 w-md-auto"
+                                        onClick={handleCancel}>Cancel</Button>
                                     <Button variant="primary" type="submit" className="w-100 w-md-auto">Submit</Button>
                                 </div>
                             </Form>
@@ -411,7 +437,7 @@ function ProfileManagement() {
                     </Col>
                 </Row>
             </Container>
-            <Footer/>
+            <Footer />
         </>
     );
 }
