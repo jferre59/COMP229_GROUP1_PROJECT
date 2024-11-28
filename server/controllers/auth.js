@@ -1,36 +1,47 @@
 const express = require('express')
 const UserAccount = require('../models/UserAccount.js');
 const jwt = require('jsonwebtoken');
-const config = require('../config/config.js');
+const config = require('../../config/config.js');
 const expressJwt = require('express-jwt');
+require('dotenv').config();
 
 // Sign-in function
 async function signin(req, res) {
     try {
+        console.log('Sign-in request received:', req.body);
         let userAccount = await UserAccount.findOne({ "email": req.body.email });
         if (!userAccount) {
-            return res.status('401').json({ error: 'User not exist' });
+            console.log('User not found');
+            return res.status(401).json({ error: 'User does not exist' });
         }
-        if (!userAccount.authenticate(req.body.password)) {
-            return res.status('401').json({ error: 'Password is Wrong' });
+        if (!userAccount.validatePassword(req.body.password)) {
+            console.log('Password is incorrect');
+            return res.status(401).json({ error: 'Password is incorrect' });
         }
+
         const token = jwt.sign({ _id: userAccount._id }, config.jwtSecret);
         res.cookie('t', token, { expire: new Date() + 9999 });
-        return res.json({
+
+        const response = {
             token,
             userAccount: {
                 _id: userAccount._id,
-                username: userAccount.username,
+                userAccId: userAccount.userAccId,
+                userAccName: userAccount.userAccName,
                 email: userAccount.email,
                 role: userAccount.role,
                 type: userAccount.type
             }
-        });
-    } catch (err) {
-        return res.status('401').json({ error: 'Unable to Sign in' });
-    }
-}
+        };
+        // Log the response object
+        console.log('Response:', response);
+        return res.json(response);
+                } catch (err) {
+                    console.error('Sign-in error:', err);
+                    return res.status(401).json({ error: 'Unable to sign in' });
+                }
 
+};
 // Sign-out function
 const signout = (req, res) => {
     res.clearCookie("t");
@@ -38,9 +49,7 @@ const signout = (req, res) => {
         message: "Successfully signed out"
     });
 };
-
 // Require sign-in middleware
-
 const requireSignin = expressJwt({
     secret: config.jwtSecret,
     algorithms: ["HS256"],

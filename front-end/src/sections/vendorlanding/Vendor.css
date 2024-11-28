@@ -1,0 +1,58 @@
+h1{
+    text-align: center;
+  }
+  .vendorHome{
+    background-color: #222222;
+  }
+  .box{
+    background-color: white;
+    width: 80%;
+    margin: auto;
+    border: 3px solid black;
+  }
+  p{
+    text-align: center;
+    font-weight: bold;
+  }
+  .minibox{
+    border: 4px solid black;
+    width: 30%;
+    margin: auto;
+    transform: translateX(-70px);
+    padding: 20px;
+    text-align: left;
+  }
+  .link1{
+    color: blue;
+    text-decoration: underline;
+    border: 2px solid red;
+    border-radius: 50%;
+  }
+  .link2{
+    color: blue;
+    text-decoration: underline;
+    border: 2px solid red;
+    border-radius: 50%;
+
+}
+.minibox2{
+    border: 4px solid black;
+    width: 10%;
+    margin: auto;
+    transform: translateX(200px);
+    padding: 10px;
+    text-align: right;
+
+}
+.p2{
+    transform: translateX(260px);
+   
+}
+.minibox3{
+    border: 4px solid black;
+    width: 30%;
+    margin: auto;
+    transform: translateX(-70px);
+    padding: 20px;
+    text-align: right;
+}

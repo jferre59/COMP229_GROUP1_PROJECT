@@ -20,7 +20,8 @@ app.get('/api/v1', (req, res) => {
   app.get('/', function (req, res) {
     res.sendFile(path.join(__dirname, "../public", "index.html"));
   });
-  
+
+ 
 app.use(express.json());
 // Middleware
 app.use(helmet());
