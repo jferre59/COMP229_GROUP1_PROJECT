@@ -1,153 +1,326 @@
 import React, { useState, useEffect } from 'react';
 import './AddFlower.css';
+import { Button } from 'react-bootstrap';
 import Navbar from '../../components/navbar/Navbar_vendor';
 import Footer from '../../components/footer/footer';
+import { useNavigate } from 'react-router-dom';
+import { useUserContext } from '../../sections/auth/UserContext';
 
 const AddFlower = () => {
-    const [formValues, setFormValues] = useState({
-        name: '',
-        description: '',
-        price: '',
-        category: '',
-        birthday: false,
-        anniversary: false,
-        valentines: false,
-        none: false,
-        quantity: '',
-        availability: '',
-        notes: '',
-        image:null,
-    });
+    const [flowerId, setFlowerId] = useState('');  // Flower ID (string)
+    const [name, setName] = useState('');
+    const [description, setDescription] = useState('');
+    const [price, setPrice] = useState(0);
+    const [imageUrls, setImage] = useState('');
+    const [quantity, setQuantity] = useState(0);
+    const [availabilityStatus, setAvailability] = useState('');
+    const [occasions, setOccasions] = useState([]);
+    const [categories, setCategories] = useState('');
+    const [notes, setNotes] = useState('');  // Notes field
+    const [vendorId, setVendorId] = useState(null);
+    const [error, setError] = useState(null);
+    const [isLoading, setIsLoading] = useState(false);
 
-    const [formErrors, setFormErrors] = useState({});
+    const { userAccountId } = useUserContext();
+    const navigate = useNavigate();
 
-    //validates form returning error message if any field(s) not valid
-    const validateForm = (event) => {
-        let newErrors = {};
+    const handleError = (error, context) => {
+        console.error(`Error in ${context}:`, error);
+        console.error('Error stack:', error.stack);
+        setError(`${context}: ${error.message}`);
+        setIsLoading(false);
+    };
 
-        const requiredFields = [
-            'name', 'description', 'price', 'category', 'quantity', 'availability'
-        ];
+    useEffect(() => {
+        const fetchVendorDetails = async () => {
+            setIsLoading(true);
+            console.log('Initiating vendor fetch with userAccountId:', userAccountId);
 
-        requiredFields.forEach((field) => {
-            if (!formValues[field]) {
-                // Capitalize the first letter of the field name for the error message
-                const formattedFieldName = field.charAt(0).toUpperCase() + field.slice(1);
-                newErrors[field] = `${formattedFieldName} is required`;
+            try {
+                // Fetch the vendor using the userAccount _id
+                const response = await fetch(`${process.env.REACT_APP_API_URL}/api/vendors/:user_id`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ userAccountId })
+                });
+
+                console.log('Vendor fetch response status:', response.status);
+                const data = await response.json();
+                console.log('Vendor fetch response data:', data);
+
+                if (!response.ok) {
+                    throw new Error(data.message || `Server responded with status: ${response.status}`);
+                }
+
+                if (!data.vendorId) {
+                    throw new Error('Vendor ID not found in response');
+                }
+
+                console.log('Successfully fetched vendorId:', data.vendorId);
+                setVendorId(data.vendorId);
+                setIsLoading(false);
+
+            } catch (error) {
+                handleError(error, 'Vendor Fetch');
             }
+        };
+
+        if (userAccountId) {
+            console.log('userAccountId available, initiating fetch');
+            fetchVendorDetails();
+        } else {
+            console.warn('No userAccountId available');
+            setError('User account ID not available');
+        }
+    }, [userAccountId]);
+
+    
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        setIsLoading(true);
+        setError(null);
+    
+        console.log('Starting flower submission process');
+    
+        if (!vendorId) {
+            console.error('Submission attempted without vendorId');
+            setError('Vendor ID is required to add a flower');
+            setIsLoading(false);
+            return;
+        }
+    
+    
+        try {
+           
+            // Create catalog data using the flowerId
+            const catalogData = {
+                //itemId: `catalog${flowerId}`,  // Generate itemId based on flowerId usinb API
+                vendorId: vendorId,
+                //flower: flower_Id, API will take care 
+                flowerId:flowerId,
+                name: name,
+                description: description,
+                price: Number(price),
+                imageUrls: [imageUrls],
+                categories, 
+                quantity: Number(quantity),
+                availabilityStatus,
+                occasions,
+                notes, 
+                //createdAt: new Date().toISOString(), // Set createdAt timestamp using API
+                //updatedAt: new Date().toISOString(), // Set updatedAt timestamp using API
+            };
+    
+            console.log('Prepared catalog data:', catalogData);
+    
+            // Send the catalog data to the server
+            const catalogResponse = await fetch(`${process.env.REACT_APP_API_URL}/api/flowersCat`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(catalogData)
+            });
+    
+            console.log('Catalog response status:', catalogResponse.status);
+            const catalogDataResponse = await catalogResponse.json();
+            console.log('Catalog creation response:', catalogDataResponse);
+    
+            if (!catalogResponse.ok) {
+                throw new Error(catalogDataResponse.message || 'Failed to create catalog entry');
+            }
+    
+            console.log('Flower and catalog successfully added');
+            alert('Flower successfully added to the catalogue!');
+            navigate('/vendor-view-flower-list');
+    
+        } catch (error) {
+            handleError(error, 'Flower and Catalog Submission');
+        } finally {
+            setIsLoading(false);
+        }
+    };
+    
+    
+    const handleOccasionChange = (value, checked) => {
+        console.log('Updating occasions:', { value, checked });
+        setOccasions(prev => {
+            const newOccasions = checked 
+                ? [...prev, value]
+                : prev.filter(item => item !== value);
+            console.log('Updated occasions:', newOccasions);
+            return newOccasions;
         });
-
-        if (formValues.price && (isNaN(formValues.price) || Number(formValues.price) <= 0)) {
-            newErrors.price = 'Price must be a positive number';
-        }
-
-        if (formValues.quantity && (isNaN(formValues.quantity) || Number(formValues.quantity) <= 0)) {
-            newErrors.quantity = 'Quantity must be greater than 0';
-        }
-
-        if (!formValues.birthday && !formValues.anniversary && !formValues.valentines && !formValues.none) {
-            newErrors.occasions = 'Select at least one occasion';
-        }
-
-        setFormErrors(newErrors);
-
-        return Object.keys(newErrors).length === 0;
     };
 
-    const handleChange = (event) => {
-        const { name, type, value, checked, files } = event.target;
-
-        setFormValues(prevValues => ({
-            ...prevValues,
-            [name]: type === 'checkbox' ? checked : type === 'file' ? files[0] : value,
-        }));
+    const handleInputChange = (setter, value, fieldName) => {
+        console.log(`Updating ${fieldName}:`, value);
+        setter(value);
     };
 
-    const handleSubmit = (event) => {
-        event.preventDefault();
-
-        if (validateForm()) {
-            // Form is valid, proceed with form submission
-            console.log("Form submitted successfully", formValues);
-        }
-    };
+    if (error) {
+        console.error('Rendering error state:', error);
+        return (
+            <div className="error-container">
+                <h2>Error Occurred</h2>
+                <p>{error}</p>
+                <pre style={{ whiteSpace: 'pre-wrap' }}>
+                    {error.stack}
+                </pre>
+                <Button 
+                    onClick={() => {
+                        console.log('Resetting error state');
+                        setError(null);
+                    }}
+                >
+                    Try Again
+                </Button>
+            </div>
+        );
+    }
 
     return (
         <>
-        <Navbar/>
-        <section id='add'>
-            <div id='container'>
-                <h1>Add Flower</h1>
+            <Navbar />
+            <section id="add">
+                <div id="container">
+                    <form id="addFlower" onSubmit={handleSubmit} noValidate>
+                        <h1>Add Flower</h1>
 
-                <form id='addFlower' onSubmit={handleSubmit} noValidate>
-                    <label htmlFor='name'>Name</label>
-                    <input type='text' id='name' name='name' value={formValues.name} onChange={handleChange} />
-                    {formErrors.name && <span className="error">{formErrors.name}</span>}
+                        <label htmlFor="flowerId">Flower Id</label>
+                        <input
+                            type="text"
+                            id="flowerId"
+                            name="flowerId"
+                            value={flowerId}
+                            onChange={(e) => handleInputChange(setFlowerId, e.target.value, 'flowerId')}
+                            required
+                        />
 
-                    <label htmlFor='description'>Description</label>
-                    <input type='text' id='description' name='description' value={formValues.description} onChange={handleChange} />
-                    {formErrors.description && <span className="error">{formErrors.description}</span>}
+                        <label htmlFor="name">Name</label>
+                        <input
+                            type="text"
+                            id="name"
+                            name="name"
+                            value={name}
+                            onChange={(e) => handleInputChange(setName, e.target.value, 'name')}
+                            required
+                        />
 
-                    <label htmlFor='price'>Price</label>
-                    <input type='text' id='price' name='price' value={formValues.price} onChange={handleChange} />
-                    {formErrors.price && <span className="error">{formErrors.price}</span>}
+                        <label htmlFor="description">Description</label>
+                        <input
+                            type="text"
+                            id="description"
+                            name="description"
+                            value={description}
+                            onChange={(e) => handleInputChange(setDescription, e.target.value, 'description')}
+                            required
+                        />
 
-                    <label htmlFor='category'>Category</label>
-                    <select id='category' name='category' value={formValues.category} onChange={handleChange}>
-                        <option value=''>Select Category</option>
-                        <option value='rose'>Rose</option>
-                        <option value='tulip'>Tulip</option>
-                        <option value='lily'>Lily</option>
-                    </select>
-                    {formErrors.category && <span className="error">{formErrors.category}</span>}
+                        <label htmlFor="price">Price</label>
+                        <input
+                            type="number"
+                            id="price"
+                            name="price"
+                            value={price}
+                            onChange={(e) => handleInputChange(setPrice, e.target.value, 'price')}
+                            min="0"
+                            step="0.01"
+                            required
+                        />
 
-                    <label id='occasions'>Occasions</label>
-                    <fieldset id='check'>
-                        <label>
-                            Birthday
-                            <input type='checkbox' id='birthday' name='birthday' checked={formValues.birthday} onChange={handleChange} />
-                        </label>
-                        <label>
-                            Anniversary
-                            <input type='checkbox' id='anniversary' name='anniversary' checked={formValues.anniversary} onChange={handleChange} />
-                        </label>
-                        <label>
-                            Valentines
-                            <input type='checkbox' id='valentines' name='valentines' checked={formValues.valentines} onChange={handleChange} />
-                        </label>
-                    </fieldset>
-                    {formErrors.occasions && <span className="error">{formErrors.occasions}</span>}
+                        <label htmlFor="imageUrls">Image Url</label>
+                        <input
+                            type="text"
+                            id="imageUrls"
+                            name="imageUrls"
+                            value={imageUrls}
+                            onChange={(e) => handleInputChange(setImage, e.target.value, 'imageUrl')}
+                            required
+                        />
 
-                    <label htmlFor='quantity'>Quantity</label>
-                    <input type='number' id='quantity' name='quantity' min='1' value={formValues.quantity} onChange={handleChange} />
-                    {formErrors.quantity && <span className="error">{formErrors.quantity}</span>}
+                        <label htmlFor="quantity">Quantity</label>
+                        <input
+                            type="number"
+                            id="quantity"
+                            name="quantity"
+                            value={quantity}
+                            onChange={(e) => handleInputChange(setQuantity, e.target.value, 'quantity')}
+                            min="0"
+                            required
+                        />
 
-                    <label>Availability</label>
-                    <fieldset id='check'>
-                        <label>
-                            Not available
-                            <input type='radio' name='availability' value='not_available' checked={formValues.availability === 'not_available'} onChange={handleChange} />
-                        </label>
-                        <label>
-                            Available
-                            <input type='radio' name='availability' value='available' checked={formValues.availability === 'available'} onChange={handleChange} />
-                        </label>
-                    </fieldset>
-                    {formErrors.availability && <span className="error">{formErrors.availability}</span>}
+                        <label>Availability</label>
+                        <fieldset id="check">
+                            <label>
+                                Not available
+                                <input
+                                    type="radio"
+                                    name="availability"
+                                    value="not_available"
+                                    checked={availabilityStatus === 'not_available'}
+                                    onChange={(e) => handleInputChange(setAvailability, e.target.value, 'availability')}
+                                    required
+                                />
+                            </label>
+                            <label>
+                                Available
+                                <input
+                                    type="radio"
+                                    name="availability"
+                                    value="available"
+                                    checked={availabilityStatus === 'available'}
+                                    onChange={(e) => handleInputChange(setAvailability, e.target.value, 'availability')}
+                                />
+                            </label>
+                        </fieldset>
 
-                    <label htmlFor='notes'>Notes</label>
-                    <textarea id='notes' name='notes' value={formValues.notes} onChange={handleChange}></textarea>
+                        <label id="occasions">Occasions</label>
+                        <fieldset id="check">
+                            {['Birthday', 'Anniversary', 'Valentines'].map((value) => (
+                                <label key={value}>
+                                    {value}
+                                    <input
+                                        type="checkbox"
+                                        name={value.toLowerCase()}
+                                        value={value}
+                                        checked={occasions.includes(value)}
+                                        onChange={(e) => handleOccasionChange(e.target.value, e.target.checked)}
+                                    />
+                                </label>
+                            ))}
+                        </fieldset>
 
-                    <label htmlFor='image'>Image(s)</label>
-                    <input type='file' id='image' name='image' accept='image/*' onChange={handleChange} />
+                        <label htmlFor="categories">Categories</label>
+                        <select
+                            id="category"
+                            name="category"
+                            value={categories}
+                            onChange={(e) => handleInputChange(setCategories, e.target.value, 'categories')}
+                            required
+                        >
+                            <option value="">Select Category</option>
+                            <option value="Rose">Rose</option>
+                            <option value="Tulip">Tulip</option>
+                            <option value="Lily">Lily</option>
+                            <option value="Others">Others</option>
+                        </select>
 
-                    <button type='submit'>Add Flower</button>
-                </form>
-            </div>
-        </section>
-        <Footer/>
+                        <Button
+                            className="w-100 w-md-auto"
+                            variant="primary"
+                            type="submit"
+                            disabled={isLoading}
+                        >
+                            {isLoading ? 'Adding...' : 'Add Flower to Catalogue'}
+                        </Button>
+                    </form>
+                </div>
+            </section>
+            <Footer />
         </>
-        
     );
 };
 

@@ -4,6 +4,7 @@ import './home.css';
 import logo from '../../assets/logo.png';
 import Navbar from '../../components/navbar/Navbar_landing';
 import { Link } from 'react-router-dom';
+import Footer from '../../components/footer/footer';
 
 const LandingPage = () => {
     return (
@@ -21,13 +22,9 @@ const LandingPage = () => {
                 </p>
 
                 <Link to="/signup"><button id = 'signup'>Sign Up Now</button></Link>
-            </div>
-            <div id = 'footer'>
-                <hr/>
-                    <footer>@copyright MernMavericks TEAM | COMP229 - Web Application Development | Fall 2024 </footer>
-                <hr/>
-            </div>
+            </div>            
         </section>
+        <Footer/>
        </>
         
     );
